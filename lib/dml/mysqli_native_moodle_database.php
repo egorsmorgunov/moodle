@@ -85,13 +85,13 @@ class mysqli_native_moodle_database extends moodle_database {
             throw new dml_connection_exception($dberr);
         }
 
-        if (isset($dboptions['dbcollation']) and strpos($dboptions['dbcollation'], 'utf8_') === 0) {
+        if (isset($dboptions['dbcollation']) and strpos($dboptions['dbcollation'], 'utf8mb4_') === 0) {
             $collation = $dboptions['dbcollation'];
         } else {
-            $collation = 'utf8_unicode_ci';
+            $collation = 'utf8mb4_unicode_ci';
         }
 
-        $result = $conn->query("CREATE DATABASE $dbname DEFAULT CHARACTER SET utf8 DEFAULT COLLATE ".$collation);
+        $result = $conn->query("CREATE DATABASE $dbname DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE ".$collation);
 
         $conn->close();
 
@@ -253,7 +253,7 @@ class mysqli_native_moodle_database extends moodle_database {
             $result = $this->mysqli->query($sql);
             $this->query_end($result);
             if ($rec = $result->fetch_assoc()) {
-                if (strpos($rec['@@collation_database'], 'utf8_') === 0) {
+                if (strpos($rec['@@collation_database'], 'utf8mb4_') === 0) {
                     $collation = $rec['@@collation_database'];
                 }
             }
@@ -261,9 +261,9 @@ class mysqli_native_moodle_database extends moodle_database {
         }
 
         if (!$collation) {
-            // We want only utf8 compatible collations.
+            // We want only utf8mb4 compatible collations.
             $collation = null;
-            $sql = "SHOW COLLATION WHERE Collation LIKE 'utf8\_%' AND Charset = 'utf8'";
+            $sql = "SHOW COLLATION WHERE Collation LIKE 'utf8mb4\_%' AND Charset = 'utf8mb4'";
             $this->query_start($sql, NULL, SQL_QUERY_AUX);
             $result = $this->mysqli->query($sql);
             $this->query_end($result);
@@ -450,7 +450,7 @@ class mysqli_native_moodle_database extends moodle_database {
         }
 
         $this->query_start("--set_charset()", null, SQL_QUERY_AUX);
-        $this->mysqli->set_charset('utf8');
+        $this->mysqli->set_charset('utf8mb4');
         $this->query_end(true);
 
         // If available, enforce strict mode for the session. That guaranties
@@ -864,15 +864,15 @@ class mysqli_native_moodle_database extends moodle_database {
     }
 
     /**
-     * Is this database compatible with utf8?
+     * Is this database compatible with utf8mb4?
      * @return bool
      */
     public function setup_is_unicodedb() {
-        // All new tables are created with this collation, we just have to make sure it is utf8 compatible,
+        // All new tables are created with this collation, we just have to make sure it is utf8mb4 compatible,
         // if config table already exists it has this collation too.
         $collation = $this->get_dbcollation();
 
-        $sql = "SHOW COLLATION WHERE Collation ='$collation' AND Charset = 'utf8'";
+        $sql = "SHOW COLLATION WHERE Collation ='$collation' AND Charset = 'utf8mb4'";
         $this->query_start($sql, NULL, SQL_QUERY_AUX);
         $result = $this->mysqli->query($sql);
         $this->query_end($result);
@@ -1518,10 +1518,10 @@ class mysqli_native_moodle_database extends moodle_database {
 
         $LIKE = $notlike ? 'NOT LIKE' : 'LIKE';
         if ($casesensitive) {
-            return "$fieldname $LIKE $param COLLATE utf8_bin ESCAPE '$escapechar'";
+            return "$fieldname $LIKE $param COLLATE utf8mb4_bin ESCAPE '$escapechar'";
         } else {
             if ($accentsensitive) {
-                return "LOWER($fieldname) $LIKE LOWER($param) COLLATE utf8_bin ESCAPE '$escapechar'";
+                return "LOWER($fieldname) $LIKE LOWER($param) COLLATE utf8mb4_bin ESCAPE '$escapechar'";
             } else {
                 return "$fieldname $LIKE $param ESCAPE '$escapechar'";
             }
