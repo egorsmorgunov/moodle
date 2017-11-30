@@ -2757,7 +2757,8 @@ abstract class grade_helper {
                 $fieldvalue = $field->default;
             }
         } else {
-            $fieldvalue = $user->{$field->shortname};
+			if ($field->shortname !== 'firstaccess') $fieldvalue = $user->{$field->shortname};
+			else $fieldvalue = date("d.m.Y" , $user->{$field->shortname});
         }
         return $fieldvalue;
     }
